@@ -105,7 +105,6 @@ The interactive application in `team_6/app/app.py` provides a production-grade i
 
 1. **Interactive Control Center**:
    - Live Model Selector (allowing users to toggle between all 5 benchmarked models).
-   - Quick Presets (e.g., *Oromia Wheat High Input*, *Amhara Teff Traditional*, *SNNPR Maize Optimal*, *Somali Sorghum Dryland*).
    - Full input controls for location, agronomics, and physical geography.
 
 2. **Real-Time Forecasting Engine**:

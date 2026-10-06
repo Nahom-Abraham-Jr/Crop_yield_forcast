@@ -76,10 +76,8 @@ team_6/
 │   ├── 03_visualizations.ipynb           # Deliverable C: Core data visualizations
 │   └── 04_modeling_and_evaluation.ipynb # Deliverable D & E: 5-Model evaluation & export
 ├── reports/
-│   ├── A_cleaning_and_integration.md
-│   ├── B_analysis_report.md
-│   ├── D_model_evaluation.md
 │   └── FINAL_DOCUMENTATION.md          # Comprehensive full project submission report
+├── FINAL_DOCUMENTATION.md              # Root-level complete final submission documentation
 └── submission/
     └── team_6_submission.csv           # Final predictions (3,751 plots)
 ```
