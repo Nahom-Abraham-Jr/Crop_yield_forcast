@@ -2,7 +2,6 @@
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Live Web App](https://img.shields.io/badge/Live_Web_App-Deployed-2e7d32.svg?logo=googlechrome&logoColor=white)](https://nahom-abraham-jr.github.io/Crop_yield_forcast/)
-[![Streamlit App](https://img.shields.io/badge/Streamlit-Live_UI%2FUX-FF4B4B.svg?logo=streamlit)](https://crop-yield-forecast-team6.streamlit.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
