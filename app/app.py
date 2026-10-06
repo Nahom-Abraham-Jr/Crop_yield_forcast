@@ -398,7 +398,7 @@ with col_right:
         
         fig, ax = plt.subplots(figsize=(7, 3.2))
         colors = ['#1b5e20' if i==0 else '#b0bec5' for i in range(len(bench_data))]
-        sns.barplot(data=bench_data, x="Category", y="Yield (tons/ha)", palette=colors, ax=ax)
+        sns.barplot(data=bench_data, x="Category", y="Yield (tons/ha)", hue="Category", palette=colors, legend=False, ax=ax)
         ax.set_title(f"Plot Forecast vs Regional Average Yields ({survey_year})", fontsize=10, fontweight='bold', pad=12)
         ax.set_ylabel("Yield (tons / ha)", fontsize=9)
         ax.set_xlabel("")
