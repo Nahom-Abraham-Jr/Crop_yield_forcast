@@ -280,24 +280,8 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.markdown("### ⚡ Quick Presets")
-    preset = st.selectbox("Load scenario:", [
-        "Custom Manual Entry",
-        "🌾 Oromia Wheat – High Input",
-        "🌱 Amhara Teff – Traditional",
-        "🌽 SNNPR Maize – Optimal",
-        "☀️ Somali Sorghum – Dryland"
-    ])
-
-    PRESETS = {
-        "Custom Manual Entry":          dict(region="Oromia", crop="Wheat",    yr=2024, pm=5, alt=2200, sz=2.5, fert=80.,  seed=1, pest=0, soil=0.65, labor=40., dist=10.),
-        "🌾 Oromia Wheat – High Input":  dict(region="Oromia", crop="Wheat",    yr=2024, pm=4, alt=2500, sz=3.0, fert=150., seed=1, pest=0, soil=0.85, labor=55., dist=6. ),
-        "🌱 Amhara Teff – Traditional":  dict(region="Amhara", crop="Teff",     yr=2023, pm=6, alt=1800, sz=1.2, fert=35.,  seed=0, pest=1, soil=0.45, labor=30., dist=18.),
-        "🌽 SNNPR Maize – Optimal":      dict(region="SNNPR",  crop="Maize",    yr=2024, pm=3, alt=1400, sz=2.0, fert=110., seed=1, pest=0, soil=0.72, labor=45., dist=8. ),
-        "☀️ Somali Sorghum – Dryland":   dict(region="Somali", crop="Sorghum",  yr=2023, pm=7, alt=800,  sz=1.8, fert=20.,  seed=0, pest=1, soil=0.35, labor=25., dist=30.)
-    }
-    P = PRESETS[preset]
+    # Default parameters for farm inputs
+    P = dict(region="Oromia", crop="Wheat", yr=2024, pm=5, alt=2200, sz=2.5, fert=80., seed=1, pest=0, soil=0.65, labor=40., dist=10.)
 
     st.markdown("---")
     st.markdown("### ℹ️ Platform Info & Team")

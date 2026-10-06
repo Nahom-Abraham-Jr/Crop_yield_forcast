@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "name": "crop-yield-forecast-team6",
+  "builds": [
+    {
+      "src": "app/app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app/app.py"
+    }
+  ]
+}

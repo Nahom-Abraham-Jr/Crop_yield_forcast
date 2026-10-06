@@ -4,6 +4,8 @@
 **Team Name**: Team 6  
 **Competition**: Qiyas / AAU Ethiopian Crop Yield Forecasting Challenge 2026  
 **Repository**: [Nahom-Abraham-Jr/Crop_yield_forcast](https://github.com/Nahom-Abraham-Jr/Crop_yield_forcast)  
+**Live Vercel Application**: [https://crop-yield-forecast-team6.vercel.app](https://crop-yield-forecast-team6.vercel.app)  
+**Live Streamlit Application**: [https://crop-yield-forecast-team6.streamlit.app](https://crop-yield-forecast-team6.streamlit.app)  
 **Date**: October 2026  
 
 ---

@@ -1,8 +1,17 @@
 # 🌾 Qiyas Ethiopian Smallholder Crop-Yield Challenge — Team 6
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B.svg)](app/app.py)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-000000.svg?logo=vercel&logoColor=white)](https://crop-yield-forecast-team6.vercel.app)
+[![Streamlit App](https://img.shields.io/badge/Streamlit-Live_UI%2FUX-FF4B4B.svg?logo=streamlit)](https://crop-yield-forecast-team6.streamlit.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+---
+
+## 🌐 Live Web Application & Deployment Links
+
+- 🚀 **Vercel Live App**: [https://crop-yield-forecast-team6.vercel.app](https://crop-yield-forecast-team6.vercel.app)
+- 🌾 **Streamlit Live Cloud App**: [https://crop-yield-forecast-team6.streamlit.app](https://crop-yield-forecast-team6.streamlit.app)
+- 📦 **GitHub Repository**: [https://github.com/Nahom-Abraham-Jr/Crop_yield_forcast](https://github.com/Nahom-Abraham-Jr/Crop_yield_forcast)
 
 ---
 
