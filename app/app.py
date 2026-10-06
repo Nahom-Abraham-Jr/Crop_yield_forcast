@@ -1,422 +1,568 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import joblib
 import os
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import seaborn as sns
+import joblib
 
-# 1. Page Configuration
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.dummy import DummyRegressor
+from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.ensemble import RandomForestRegressor, HistGradientBoostingRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+# ─── Page Config ────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Qiyas Crop Intelligence Platform | Team 6",
+    page_title="Qiyas Crop Intelligence | Team 6",
     page_icon="🌾",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# 2. Premium Custom CSS Styling
+# ─── Global CSS ─────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
-    
-    html, body, [class*="css"] {
-        font-family: 'Outfit', sans-serif;
-    }
-    
-    /* Main Background & Padding */
-    .main .block-container {
-        padding-top: 1.8rem;
-        padding-bottom: 3rem;
-        max-width: 1350px;
-    }
-    
-    /* Hero Banner */
-    .hero-container {
-        background: linear-gradient(135deg, #0d3b1e 0%, #1b5e20 40%, #2e7d32 100%);
-        border-radius: 16px;
-        padding: 2.2rem 2.5rem;
-        color: white;
-        box-shadow: 0 10px 30px rgba(27, 94, 32, 0.25);
-        margin-bottom: 2rem;
-        position: relative;
-        overflow: hidden;
-    }
-    .hero-title {
-        font-size: 2.3rem;
-        font-weight: 700;
-        margin-bottom: 0.4rem;
-        color: #ffffff;
-        letter-spacing: -0.5px;
-    }
-    .hero-subtitle {
-        font-size: 1.05rem;
-        color: #c8e6c9;
-        max-width: 850px;
-        font-weight: 300;
-        line-height: 1.5;
-    }
-    .badge-status {
-        display: inline-block;
-        background: rgba(255, 255, 255, 0.18);
-        backdrop-filter: blur(10px);
-        padding: 6px 14px;
-        border-radius: 30px;
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: #ffffff;
-        margin-top: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.25);
-    }
-    
-    /* Card Container */
-    .custom-card {
-        background: #ffffff;
-        border: 1px solid #e0e0e0;
-        border-radius: 14px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-        margin-bottom: 1.5rem;
-    }
-    
-    /* Metric Cards */
-    .kpi-card {
-        background: #f8faf9;
-        border-left: 5px solid #2e7d32;
-        border-radius: 12px;
-        padding: 1.2rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .kpi-label {
-        font-size: 0.85rem;
-        color: #555555;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    .kpi-value {
-        font-size: 1.85rem;
-        font-weight: 700;
-        color: #1b5e20;
-        margin: 0.3rem 0;
-    }
-    .kpi-sub {
-        font-size: 0.8rem;
-        color: #777777;
-    }
-    
-    /* Revenue Card Highlight */
-    .kpi-card-revenue {
-        border-left-color: #0288d1;
-        background: #f0f7ff;
-    }
-    .kpi-card-revenue .kpi-value {
-        color: #01579b;
-    }
-    
-    /* Intelligence Box */
-    .intel-box {
-        background: #ffffff;
-        border: 1px solid #c8e6c9;
-        border-radius: 12px;
-        padding: 1.2rem 1.4rem;
-        margin-top: 1rem;
-    }
-    .intel-header {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #1b5e20;
-        margin-bottom: 0.6rem;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    /* St Button styling */
-    .stButton>button {
-        background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%) !important;
-        color: white !important;
-        font-weight: 600 !important;
-        font-size: 1.05rem !important;
-        border-radius: 10px !important;
-        padding: 0.65rem 2rem !important;
-        border: none !important;
-        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3) !important;
-        width: 100% !important;
-        transition: all 0.3s ease !important;
-    }
-    .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba(46, 125, 50, 0.4) !important;
-    }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+
+.main .block-container { padding-top: 1.2rem; padding-bottom: 2rem; max-width: 1400px; }
+
+/* ── Hero ── */
+.hero {
+    background: linear-gradient(135deg, #0a2e14 0%, #1b5e20 55%, #2e7d32 100%);
+    border-radius: 18px;
+    padding: 2rem 2.5rem;
+    color: white;
+    box-shadow: 0 12px 40px rgba(27,94,32,.30);
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.hero::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 250px; height: 250px;
+    background: rgba(255,255,255,.04);
+    border-radius: 50%;
+}
+.hero-title  { font-size: 2rem; font-weight: 800; letter-spacing: -.4px; margin-bottom: .35rem; }
+.hero-sub    { font-size: .95rem; color: #c8e6c9; font-weight: 300; line-height: 1.6; max-width: 820px; }
+.hero-badges { margin-top: .9rem; display: flex; gap: .6rem; flex-wrap: wrap; }
+.badge {
+    background: rgba(255,255,255,.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 30px;
+    padding: 5px 14px;
+    font-size: .78rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* ── KPI Cards ── */
+.kpi-row { display: flex; gap: 1rem; margin-bottom: 1.2rem; }
+.kpi {
+    flex: 1;
+    background: #fff;
+    border-radius: 14px;
+    padding: 1.15rem 1.3rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    border-top: 4px solid #2e7d32;
+    transition: transform .2s;
+}
+.kpi:hover { transform: translateY(-3px); }
+.kpi.blue  { border-top-color: #0288d1; }
+.kpi.amber { border-top-color: #f57c00; }
+.kpi.purple{ border-top-color: #7b1fa2; }
+.kpi-label { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: #666; }
+.kpi-value { font-size: 1.85rem; font-weight: 800; color: #1b5e20; margin: .25rem 0; line-height: 1; }
+.kpi.blue  .kpi-value  { color: #01579b; }
+.kpi.amber .kpi-value  { color: #e65100; }
+.kpi.purple .kpi-value { color: #6a1b9a; }
+.kpi-sub   { font-size: .78rem; color: #888; }
+
+/* ── Section header ── */
+.sec-header {
+    font-size: 1.05rem; font-weight: 700; color: #1b5e20;
+    border-left: 4px solid #2e7d32;
+    padding-left: .7rem; margin-bottom: 1rem; margin-top: .2rem;
+}
+
+/* ── Model Selector Cards ── */
+.model-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: .6rem; margin-bottom: 1rem; }
+.model-card {
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: .7rem .8rem;
+    cursor: pointer;
+    transition: all .2s;
+    background: #fafafa;
+    text-align: center;
+}
+.model-card.active { border-color: #2e7d32; background: #e8f5e9; box-shadow: 0 4px 14px rgba(46,125,50,.2); }
+.model-card-title  { font-size: .78rem; font-weight: 700; color: #333; }
+.model-card-rmse   { font-size: .72rem; color: #666; margin-top: .2rem; }
+
+/* ── Button ── */
+.stButton>button {
+    background: linear-gradient(135deg, #2e7d32, #1b5e20) !important;
+    color: white !important; font-weight: 700 !important;
+    font-size: 1rem !important; border-radius: 10px !important;
+    padding: .65rem 1.5rem !important; border: none !important;
+    box-shadow: 0 4px 14px rgba(46,125,50,.35) !important;
+    width: 100% !important; transition: all .25s !important;
+    letter-spacing: .3px !important;
+}
+.stButton>button:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(46,125,50,.45) !important; }
+
+/* ── Info chips ── */
+.chip {
+    display: inline-block;
+    background: #e8f5e9; color: #1b5e20;
+    border: 1px solid #a5d6a7;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: .78rem; font-weight: 600;
+    margin: 3px 2px;
+}
+.chip.red   { background:#ffebee; color:#c62828; border-color:#ef9a9a; }
+.chip.amber { background:#fff8e1; color:#e65100; border-color:#ffcc02; }
+.chip.blue  { background:#e3f2fd; color:#01579b; border-color:#90caf9; }
+
+/* ── Sidebar ── */
+section[data-testid="stSidebar"] { background: #f0f4f0 !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# 3. Load Models and Lookup Datasets
-@st.cache_resource
-def load_app_resources():
-    base_dir = os.path.dirname(os.path.dirname(__file__))
-    model_path = os.path.join(base_dir, 'models', 'final_model.joblib')
-    weather_path = os.path.join(base_dir, 'data', 'raw', 'regional_weather.csv')
-    prices_path = os.path.join(base_dir, 'data', 'raw', 'market_prices.csv')
-    
-    # Fallback paths if run from root
-    if not os.path.exists(model_path):
-        base_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'team_6')
-        model_path = os.path.join(base_dir, 'models', 'final_model.joblib')
-        weather_path = os.path.join(base_dir, 'data', 'raw', 'regional_weather.csv')
-        prices_path = os.path.join(base_dir, 'data', 'raw', 'market_prices.csv')
-        
-    model = joblib.load(model_path)
-    weather = pd.read_csv(weather_path)
-    prices = pd.read_csv(prices_path)
-    
-    # Preprocessing lookup tables
-    weather['region'] = weather['region'].astype(str).str.lower().str.strip()
-    month_map = {'jan':1, 'feb':2, 'mar':3, 'apr':4, 'may':5, 'jun':6, 'jul':7, 'aug':8, 'sep':9, 'oct':10, 'nov':11, 'dec':12}
-    if weather['month'].dtype == 'O':
-        weather['month'] = weather['month'].str.lower().str.slice(0,3).map(month_map)
-    weather['month'] = pd.to_numeric(weather['month'], errors='coerce')
-    
-    prices['region'] = prices['region'].astype(str).str.lower().str.strip()
-    prices['crop_type'] = prices['crop_type'].astype(str).str.lower().str.strip()
-    prices.loc[prices['price_birr_per_quintal'] > 20000, 'price_birr_per_quintal'] /= 10
-    
-    return model, weather, prices
+
+# ─── Resolve Paths ───────────────────────────────────────────────────────────
+def resolve_paths():
+    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    for candidate in [base, os.path.join(base, 'team_6')]:
+        if os.path.exists(os.path.join(candidate, 'data', 'raw', 'crop_yield_train.csv')):
+            raw  = os.path.join(candidate, 'data', 'raw')
+            proc = os.path.join(candidate, 'data', 'processed')
+            fig  = os.path.join(candidate, 'figures')
+            mod  = os.path.join(candidate, 'models')
+            return raw, proc, fig, mod
+    return None, None, None, None
+
+RAW_DIR, PROC_DIR, FIG_DIR, MOD_DIR = resolve_paths()
+
+# ─── Load Raw Lookup Data ────────────────────────────────────────────────────
+@st.cache_data
+def load_lookup():
+    month_map = {'jan':1,'feb':2,'mar':3,'apr':4,'may':5,'jun':6,
+                 'jul':7,'aug':8,'sep':9,'oct':10,'nov':11,'dec':12}
+    w = pd.read_csv(os.path.join(RAW_DIR, 'regional_weather.csv'))
+    w['region'] = w['region'].str.lower().str.strip()
+    if w['month'].dtype == 'O':
+        w['month'] = w['month'].str.lower().str.slice(0,3).map(month_map)
+    w['month'] = pd.to_numeric(w['month'], errors='coerce')
+
+    p = pd.read_csv(os.path.join(RAW_DIR, 'market_prices.csv'))
+    p['region']    = p['region'].str.lower().str.strip()
+    p['crop_type'] = p['crop_type'].str.lower().str.strip()
+    p.loc[p['price_birr_per_quintal'] > 20000, 'price_birr_per_quintal'] /= 10
+    return w, p
+
+@st.cache_data
+def load_train():
+    df = pd.read_csv(os.path.join(PROC_DIR, 'master_train.csv'))
+    return df
 
 try:
-    model, weather_df, prices_df = load_app_resources()
+    weather_df, prices_df = load_lookup()
+    train_df = load_train()
+    DATA_OK = True
 except Exception as e:
-    st.error(f"⚠️ Error loading ML model or raw datasets: {e}. Please check model path.")
+    DATA_OK = False
+    st.error(f"⚠️ Could not load data: {e}")
     st.stop()
 
-# 4. Hero Section
-st.markdown("""
-<div class="hero-container">
-    <div class="hero-title">🌾 Qiyas Crop Yield & Revenue Intelligence Platform</div>
-    <div class="hero-subtitle">
-        Empowering Ethiopian smallholder farmers, extension agents, and policymakers with AI-driven plot yield forecasts and market revenue predictions before planting season begins.
+# ─── Model Registry ──────────────────────────────────────────────────────────
+MODEL_REGISTRY = {
+    "Hist Gradient Boosting": {
+        "emoji": "⚡", "short": "HGB",
+        "cv_rmse": 0.496, "cv_r2": 0.874,
+        "description": "Best performer. Native NaN handling, fast, boosted trees.",
+        "color": "#2e7d32",
+        "factory": lambda: HistGradientBoostingRegressor(max_iter=100, max_depth=15, random_state=42)
+    },
+    "Random Forest": {
+        "emoji": "🌲", "short": "RF",
+        "cv_rmse": 0.545, "cv_r2": 0.849,
+        "description": "Ensemble of 100 decision trees, robust to outliers.",
+        "color": "#1565c0",
+        "factory": lambda: RandomForestRegressor(n_estimators=100, max_depth=25, random_state=42)
+    },
+    "Ridge Regression": {
+        "emoji": "📐", "short": "Ridge",
+        "cv_rmse": 0.913, "cv_r2": 0.574,
+        "description": "L2-regularized linear model. Fast and interpretable baseline.",
+        "color": "#6a1b9a",
+        "factory": lambda: Ridge(alpha=1.0, random_state=42)
+    },
+    "Linear Regression": {
+        "emoji": "📈", "short": "LR",
+        "cv_rmse": 0.913, "cv_r2": 0.574,
+        "description": "Classic OLS linear model. Strong interpretability baseline.",
+        "color": "#e65100",
+        "factory": lambda: LinearRegression()
+    },
+    "Dummy Baseline": {
+        "emoji": "🎲", "short": "Dummy",
+        "cv_rmse": 1.400, "cv_r2": -0.001,
+        "description": "Predicts the mean yield. Reference floor for comparison.",
+        "color": "#b71c1c",
+        "factory": lambda: DummyRegressor(strategy='mean')
+    }
+}
+
+# ─── Build / Cache pipeline for a selected model ─────────────────────────────
+@st.cache_resource
+def get_trained_pipeline(model_name: str):
+    X = train_df.drop(columns=['plot_id', 'yield_tons_per_ha'], errors='ignore')
+    y = train_df['yield_tons_per_ha']
+
+    num_cols = X.select_dtypes(include=['int64', 'float64']).columns.tolist()
+    cat_cols = X.select_dtypes(include=['object', 'category']).columns.tolist()
+
+    preprocessor = ColumnTransformer([
+        ('num', SimpleImputer(strategy='median'), num_cols),
+        ('cat', Pipeline([
+            ('imp', SimpleImputer(strategy='most_frequent')),
+            ('ohe', OneHotEncoder(handle_unknown='ignore', sparse_output=False))
+        ]), cat_cols)
+    ])
+
+    estimator = MODEL_REGISTRY[model_name]["factory"]()
+    pipe = Pipeline([('pre', preprocessor), ('model', estimator)])
+    pipe.fit(X, y)
+
+    # Quick holdout score
+    from sklearn.model_selection import train_test_split
+    Xtr, Xval, ytr, yval = train_test_split(X, y, test_size=.2, random_state=42)
+    pipe_val = Pipeline([('pre', preprocessor), ('model', MODEL_REGISTRY[model_name]["factory"]())])
+    pipe_val.fit(Xtr, ytr)
+    preds = pipe_val.predict(Xval)
+    val_rmse = np.sqrt(mean_squared_error(yval, preds))
+    val_r2   = r2_score(yval, preds)
+    return pipe, val_rmse, val_r2
+
+
+# ─── Sidebar ─────────────────────────────────────────────────────────────────
+with st.sidebar:
+    st.markdown("## 🌾 Control Center")
+    st.markdown("---")
+
+    # Model Selector
+    st.markdown("### 🤖 Select AI Model")
+    selected_model = st.radio(
+        "Choose prediction model:",
+        list(MODEL_REGISTRY.keys()),
+        index=0,
+        format_func=lambda m: f"{MODEL_REGISTRY[m]['emoji']} {m}"
+    )
+    m = MODEL_REGISTRY[selected_model]
+    st.markdown(f"""
+    <div style='background:#f1f8e9;border:1px solid #a5d6a7;border-radius:10px;padding:.8rem;margin-top:.5rem;font-size:.82rem;'>
+        <b style='color:{m["color"]};'>{m["emoji"]} {selected_model}</b><br>
+        <span style='color:#555;'>{m["description"]}</span><br><br>
+        📊 CV RMSE: <b>{m['cv_rmse']:.3f}</b> &nbsp;|&nbsp; R²: <b>{m['cv_r2']:.3f}</b>
     </div>
-    <div class="badge-status">
-        ✨ Random Forest AI Model | Integrated Weather & Price Time-Series | Team 6 Submission
-    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.markdown("### ⚡ Quick Presets")
+    preset = st.selectbox("Load scenario:", [
+        "Custom Manual Entry",
+        "🌾 Oromia Wheat – High Input",
+        "🌱 Amhara Teff – Traditional",
+        "🌽 SNNPR Maize – Optimal",
+        "☀️ Somali Sorghum – Dryland"
+    ])
+
+    PRESETS = {
+        "Custom Manual Entry":          dict(region="Oromia", crop="Wheat",    yr=2024, pm=5, alt=2200, sz=2.5, fert=80.,  seed=1, pest=0, soil=0.65, labor=40., dist=10.),
+        "🌾 Oromia Wheat – High Input":  dict(region="Oromia", crop="Wheat",    yr=2024, pm=4, alt=2500, sz=3.0, fert=150., seed=1, pest=0, soil=0.85, labor=55., dist=6. ),
+        "🌱 Amhara Teff – Traditional":  dict(region="Amhara", crop="Teff",     yr=2023, pm=6, alt=1800, sz=1.2, fert=35.,  seed=0, pest=1, soil=0.45, labor=30., dist=18.),
+        "🌽 SNNPR Maize – Optimal":      dict(region="SNNPR",  crop="Maize",    yr=2024, pm=3, alt=1400, sz=2.0, fert=110., seed=1, pest=0, soil=0.72, labor=45., dist=8. ),
+        "☀️ Somali Sorghum – Dryland":   dict(region="Somali", crop="Sorghum",  yr=2023, pm=7, alt=800,  sz=1.8, fert=20.,  seed=0, pest=1, soil=0.35, labor=25., dist=30.)
+    }
+    P = PRESETS[preset]
+
+    st.markdown("---")
+    st.markdown("### ℹ️ Platform Info")
+    st.caption("**Hackathon**: Qiyas / AAU 2026")
+    st.caption("**Team**: Group 6")
+    st.caption("**Dataset**: 15,090 Ethiopian farm plots")
+
+# ─── Hero ────────────────────────────────────────────────────────────────────
+st.markdown(f"""
+<div class="hero">
+  <div class="hero-title">🌾 Qiyas Crop Yield & Revenue Intelligence Platform</div>
+  <div class="hero-sub">
+    Empowering Ethiopian smallholder farmers, extension agents, and policymakers with
+    AI-driven plot yield forecasts and market revenue predictions — before planting season begins.
+  </div>
+  <div class="hero-badges">
+    <span class="badge">🤖 {selected_model}</span>
+    <span class="badge">📊 5-Model Comparison</span>
+    <span class="badge">🌦️ Integrated Weather & Price Time-Series</span>
+    <span class="badge">👥 Team 6 Submission</span>
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
-# 5. Sidebar Controls & Presets
-with st.sidebar:
-    st.image("https://img.icons8.com/color/96/wheat.png", width=64)
-    st.title("⚙️ Control Center")
-    st.write("Select a pre-configured farm profile or enter custom plot metrics.")
-    
-    preset = st.selectbox(
-        "⚡ Quick Scenario Presets",
-        ["Custom Manual Entry", "🌾 Oromia Wheat High-Input Farm", "🌱 Amhara Teff Traditional Plot", "🌽 SNNPR Maize Optimal Farm", "☀️ Somali Sorghum Dryland Plot"]
-    )
-    
-    # Default values based on preset
-    defaults = {
-        "region": "Oromia", "crop_type": "Wheat", "survey_year": 2024, "planting_month": 5,
-        "altitude_m": 2200, "farm_size_ha": 2.5, "fertilizer_kg": 120.0, "improved_seed": 1,
-        "pest_flag": 0, "soil_index": 0.75, "labor_days": 45.0, "market_dist": 8.0
-    }
-    
-    if preset == "🌾 Oromia Wheat High-Input Farm":
-        defaults.update({"region": "Oromia", "crop_type": "Wheat", "fertilizer_kg": 150.0, "improved_seed": 1, "soil_index": 0.85, "farm_size_ha": 3.0})
-    elif preset == "🌱 Amhara Teff Traditional Plot":
-        defaults.update({"region": "Amhara", "crop_type": "Teff", "fertilizer_kg": 40.0, "improved_seed": 0, "soil_index": 0.50, "farm_size_ha": 1.2})
-    elif preset == "🌽 SNNPR Maize Optimal Farm":
-        defaults.update({"region": "SNNPR", "crop_type": "Maize", "fertilizer_kg": 100.0, "improved_seed": 1, "soil_index": 0.70, "farm_size_ha": 2.0})
-    elif preset == "☀️ Somali Sorghum Dryland Plot":
-        defaults.update({"region": "Somali", "crop_type": "Sorghum", "fertilizer_kg": 20.0, "improved_seed": 0, "soil_index": 0.40, "farm_size_ha": 1.5})
+# ─── Main Layout ─────────────────────────────────────────────────────────────
+col_form, col_dash = st.columns([5, 7], gap="large")
 
-    st.markdown("---")
-    st.markdown("### ℹ️ Model Details")
-    st.caption("**Algorithm**: Random Forest Regressor")
-    st.caption("**Validation Metric**: RMSE ~0.42 t/ha")
-    st.caption("**Features**: 19 plot, climate & pricing features")
-    st.caption("**Hackathon**: Qiyas / AAU 2026")
+# ════════════════════ LEFT: FORM ══════════════════════════════════════════════
+with col_form:
+    st.markdown('<div class="sec-header">📝 Farm & Plot Characteristics</div>', unsafe_allow_html=True)
 
-# 6. Main Dashboard Layout (2 Columns: Inputs vs Predictions & Intelligence)
-col_left, col_right = st.columns([5, 7], gap="large")
+    with st.form("pred_form"):
+        st.markdown("##### 📍 Location & Crop")
+        r1, r2 = st.columns(2)
+        with r1:
+            REGIONS = ["Oromia", "Amhara", "SNNPR", "Tigray", "Somali"]
+            region    = st.selectbox("Region",      REGIONS,                        index=REGIONS.index(P["region"]))
+            crop_type = st.selectbox("Crop Type",   ["Teff","Wheat","Maize","Sorghum","Barley"], index=["Teff","Wheat","Maize","Sorghum","Barley"].index(P["crop"]))
+        with r2:
+            survey_year    = st.selectbox("Survey Year", [2021,2022,2023,2024], index=[2021,2022,2023,2024].index(P["yr"]))
+            planting_month = st.slider("Planting Month", 1, 12, P["pm"])
 
-with col_left:
-    st.markdown("### 📝 Farm & Plot Characteristics")
-    
-    with st.form("input_form"):
-        st.markdown("##### 📍 Location & Crop Selection")
-        c1, c2 = st.columns(2)
-        with c1:
-            region = st.selectbox("Region", ["Oromia", "Amhara", "SNNPR", "Tigray", "Somali"], index=["Oromia", "Amhara", "SNNPR", "Tigray", "Somali"].index(defaults["region"]))
-            crop_type = st.selectbox("Crop Type", ["Teff", "Wheat", "Maize", "Sorghum", "Barley"], index=["Teff", "Wheat", "Maize", "Sorghum", "Barley"].index(defaults["crop_type"]))
-        with c2:
-            survey_year = st.selectbox("Survey Year", [2021, 2022, 2023, 2024], index=[2021, 2022, 2023, 2024].index(defaults["survey_year"]))
-            planting_month = st.slider("Planting Month (1=Jan, 12=Dec)", 1, 12, defaults["planting_month"])
-
-        st.markdown("##### 🚜 Agronomic Practices & Inputs")
-        c3, c4 = st.columns(2)
-        with c3:
-            farm_size_ha = st.number_input("Farm Size (hectares)", min_value=0.1, max_value=50.0, value=float(defaults["farm_size_ha"]), step=0.1)
-            fertilizer_kg_per_ha = st.number_input("Fertilizer (kg / hectare)", min_value=0.0, max_value=500.0, value=float(defaults["fertilizer_kg"]), step=5.0)
-            labor_days_per_ha = st.number_input("Labor Days per ha", min_value=1.0, max_value=200.0, value=float(defaults["labor_days"]), step=5.0)
-        with c4:
-            improved_seed_used = st.selectbox("Improved Seed Used?", [1, 0], format_func=lambda x: "Yes (Improved)" if x == 1 else "No (Local)", index=0 if defaults["improved_seed"] == 1 else 1)
-            pest_disease_flag = st.selectbox("Pest/Disease Observed?", [0, 1], format_func=lambda x: "No Disease" if x == 0 else "Pest/Disease Present", index=0 if defaults["pest_flag"] == 0 else 1)
-            soil_quality_index = st.slider("Soil Quality Index", 0.0, 1.0, float(defaults["soil_index"]), step=0.05)
+        st.markdown("##### 🚜 Agronomic Inputs")
+        a1, a2 = st.columns(2)
+        with a1:
+            farm_size_ha       = st.number_input("Farm Size (ha)",        0.1, 50.0, float(P["sz"]),    0.1)
+            fertilizer_kg      = st.number_input("Fertilizer (kg/ha)",    0.0, 500.0, float(P["fert"]), 5.0)
+            labor_days         = st.number_input("Labor Days / ha",       1.0, 200.0, float(P["labor"]),5.0)
+        with a2:
+            improved_seed      = st.selectbox("Improved Seed?",  [1, 0], format_func=lambda x: "✅ Yes (Improved)" if x else "❌ No (Local)", index=0 if P["seed"]==1 else 1)
+            pest_disease_flag  = st.selectbox("Pest/Disease?",   [0, 1], format_func=lambda x: "✅ No Disease" if x==0 else "🚨 Pest/Disease Present", index=P["pest"])
+            soil_quality_index = st.slider("Soil Quality (0–1)", 0.0, 1.0, float(P["soil"]), 0.05)
 
         st.markdown("##### 🏔️ Physical Geography")
-        c5, c6 = st.columns(2)
-        with c5:
-            altitude_m = st.number_input("Altitude (meters)", min_value=0, max_value=4000, value=int(defaults["altitude_m"]), step=50)
-        with c6:
-            distance_to_market_km = st.number_input("Distance to Market (km)", min_value=0.1, max_value=150.0, value=float(defaults["market_dist"]), step=1.0)
+        g1, g2 = st.columns(2)
+        with g1:
+            altitude_m         = st.number_input("Altitude (m)",         0, 4000, int(P["alt"]),  50)
+        with g2:
+            distance_to_market = st.number_input("Distance to Market (km)", 0.1, 200.0, float(P["dist"]), 1.0)
 
-        submit_btn = st.form_submit_button("🚀 Compute Yield & Revenue Forecast")
+        submitted = st.form_submit_button("🚀  Compute Yield & Revenue Forecast")
 
-# 7. Compute Predictions & Automated Lookups
-r_lower = region.lower()
-c_lower = crop_type.lower()
+# ─── Lookups ──────────────────────────────────────────────────────────────────
+r_l = region.lower()
+c_l = crop_type.lower()
 
-# Weather Lookup
-months = [(planting_month + i - 1) % 12 + 1 for i in range(4)]
-w_sub = weather_df[(weather_df['region'] == r_lower) & (weather_df['year'] == survey_year) & (weather_df['month'].isin(months))]
+months  = [(planting_month + i - 1) % 12 + 1 for i in range(4)]
+w_sub   = weather_df[(weather_df['region']==r_l) & (weather_df['year']==survey_year) & (weather_df['month'].isin(months))]
+season_temp  = w_sub['avg_temp_c'].mean()          if len(w_sub) else 20.5
+season_rain  = w_sub['monthly_rainfall_mm'].sum()  if len(w_sub) else 350.0
+season_heat  = w_sub['extreme_heat_days'].sum()    if len(w_sub) else 2
 
-if len(w_sub) > 0:
-    season_temp = w_sub['avg_temp_c'].mean()
-    season_rain = w_sub['monthly_rainfall_mm'].sum()
-    season_heat = w_sub['extreme_heat_days'].sum()
-else:
-    season_temp, season_rain, season_heat = 20.5, 350.0, 2
+p_sub       = prices_df[(prices_df['region']==r_l) & (prices_df['crop_type']==c_l) & (prices_df['year']==survey_year)]
+price_birr  = p_sub['price_birr_per_quintal'].values[0] if len(p_sub) else 5200.0
 
-# Price Lookup
-p_sub = prices_df[(prices_df['region'] == r_lower) & (prices_df['crop_type'] == c_lower) & (prices_df['year'] == survey_year)]
-if len(p_sub) > 0:
-    price_birr = p_sub['price_birr_per_quintal'].values[0]
-else:
-    price_birr = 5200.0
+# ─── Train pipeline ───────────────────────────────────────────────────────────
+with st.spinner(f"⚙️ Training **{selected_model}** on full dataset…"):
+    try:
+        trained_pipe, val_rmse, val_r2 = get_trained_pipeline(selected_model)
+        PIPE_OK = True
+    except Exception as e:
+        st.error(f"Pipeline error: {e}")
+        PIPE_OK = False
 
-# Prepare Model Input DataFrame
-model_input = pd.DataFrame([{
-    'region': r_lower,
-    'crop_type': c_lower,
+# ─── Build input row ──────────────────────────────────────────────────────────
+def safe_month_num(v):
+    month_map = {'jan':1,'feb':2,'mar':3,'apr':4,'may':5,'jun':6,'jul':7,'aug':8,'sep':9,'oct':10,'nov':11,'dec':12}
+    try:
+        f = float(v)
+        return int(f) if 1 <= f <= 12 else 5
+    except (ValueError, TypeError):
+        return month_map.get(str(v).lower().strip()[:3], 5)
+
+input_row = pd.DataFrame([{
+    'region': r_l, 'crop_type': c_l,
     'survey_year': survey_year,
     'planting_month': planting_month,
+    'planting_month_num': safe_month_num(planting_month),
     'altitude_m': altitude_m,
     'farm_size_ha': farm_size_ha,
-    'fertilizer_kg_per_ha': fertilizer_kg_per_ha,
-    'improved_seed_used': improved_seed_used,
+    'fertilizer_kg_per_ha': fertilizer_kg,
+    'improved_seed_used': improved_seed,
     'pest_disease_flag': pest_disease_flag,
     'soil_quality_index': soil_quality_index,
-    'labor_days_per_ha': labor_days_per_ha,
-    'distance_to_market_km': distance_to_market_km,
+    'labor_days_per_ha': labor_days,
+    'distance_to_market_km': distance_to_market,
+    'rainfall_mm_season': season_rain,
     'season_temp_mean': season_temp,
     'season_rainfall_sum': season_rain,
     'season_extreme_heat_days': season_heat,
-    'fertilizer_per_ha_ratio': fertilizer_kg_per_ha / (farm_size_ha + 1e-6),
-    'labor_per_ha_ratio': labor_days_per_ha / (farm_size_ha + 1e-6),
-    'is_late_planting': 1 if planting_month > 6 else 0
+    'fertilizer_per_ha_ratio': fertilizer_kg / (farm_size_ha + 1e-6),
+    'labor_per_ha_ratio': labor_days / (farm_size_ha + 1e-6),
+    'is_late_planting': 1 if planting_month > 6 else 0,
 }])
 
-# Execute ML Prediction
-try:
-    predicted_yield = model.predict(model_input)[0]
-except Exception as e:
-    predicted_yield = 2.45 # Fallback demo average
+# ─── Predict ─────────────────────────────────────────────────────────────────
+if PIPE_OK:
+    try:
+        predicted_yield = trained_pipe.predict(input_row)[0]
+        predicted_yield = max(0, predicted_yield)
+    except Exception:
+        predicted_yield = 2.45
+else:
+    predicted_yield = 2.45
 
-total_harvest_tons = predicted_yield * farm_size_ha
-total_harvest_quintals = total_harvest_tons * 10
-estimated_revenue_birr = total_harvest_quintals * price_birr
+total_tons     = predicted_yield * farm_size_ha
+total_quintals = total_tons * 10
+revenue        = total_quintals * price_birr
 
-with col_right:
-    st.markdown("### 📊 AI Forecast & Executive Dashboard")
-    
-    # Top 3 KPI Metrics Cards
-    kpi_col1, kpi_col2, kpi_col3 = st.columns(3)
-    
-    with kpi_col1:
-        st.markdown(f"""
-        <div class="kpi-card">
-            <div class="kpi-label">Predicted Yield</div>
-            <div class="kpi-value">{predicted_yield:.2f} <span style="font-size:1rem;">t/ha</span></div>
-            <div class="kpi-sub">Total: <b>{total_harvest_tons:.1f} tons</b> ({total_harvest_quintals:.0f} qtl)</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with kpi_col2:
-        st.markdown(f"""
-        <div class="kpi-card kpi-card-revenue">
-            <div class="kpi-label">Est. Farm Revenue</div>
-            <div class="kpi-value">{estimated_revenue_birr:,.0f} <span style="font-size:1rem;">ETB</span></div>
-            <div class="kpi-sub">Price: <b>{price_birr:,.0f} Birr/qtl</b></div>
-        </div>
-        """, unsafe_allow_html=True)
+# ════════════════════ RIGHT: DASHBOARD ═══════════════════════════════════════
+with col_dash:
+    st.markdown('<div class="sec-header">📊 AI Forecast & Executive Dashboard</div>', unsafe_allow_html=True)
 
-    with kpi_col3:
-        st.markdown(f"""
-        <div class="kpi-card" style="border-left-color: #ff9800;">
-            <div class="kpi-label">Climate Profile</div>
-            <div class="kpi-value">{season_temp:.1f}°C</div>
-            <div class="kpi-sub">Rain: <b>{season_rain:.0f}mm</b> | Heat: <b>{season_heat}d</b></div>
-        </div>
-        """, unsafe_allow_html=True)
+    # ── KPI Row ──
+    st.markdown(f"""
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="kpi-label">Predicted Yield</div>
+        <div class="kpi-value">{predicted_yield:.2f} <span style="font-size:1rem;font-weight:400;">t/ha</span></div>
+        <div class="kpi-sub">Total harvest: <b>{total_tons:.1f} t</b> ({total_quintals:.0f} qtl)</div>
+      </div>
+      <div class="kpi blue">
+        <div class="kpi-label">Est. Farm Revenue</div>
+        <div class="kpi-value">{revenue:,.0f} <span style="font-size:1rem;font-weight:400;">ETB</span></div>
+        <div class="kpi-sub">Price: <b>{price_birr:,.0f} Birr/qtl</b></div>
+      </div>
+      <div class="kpi amber">
+        <div class="kpi-label">Climate Profile</div>
+        <div class="kpi-value">{season_temp:.1f}°C</div>
+        <div class="kpi-sub">Rain: <b>{season_rain:.0f} mm</b> | Heat: <b>{int(season_heat)} days</b></div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    # ── Model Accuracy strip ──
+    st.markdown(f"""
+    <div style='background:#f8faf9;border:1px solid #c8e6c9;border-radius:12px;padding:.8rem 1.1rem;margin-bottom:1rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;'>
+      <span style='font-size:.82rem;font-weight:600;color:#555;'>🤖 Active Model:</span>
+      <span style='color:{m["color"]};font-weight:700;'>{m["emoji"]} {selected_model}</span>
+      <span class='chip'>CV RMSE: {m['cv_rmse']:.3f}</span>
+      <span class='chip'>CV R²: {m['cv_r2']:.3f}</span>
+      <span class='chip blue'>Val RMSE: {val_rmse:.3f}</span>
+      <span class='chip blue'>Val R²: {val_r2:.3f}</span>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # Tabbed Analytical Deep Dive
-    tab1, tab2, tab3 = st.tabs(["💡 Agronomic Recommendations", "📈 Regional Benchmark Comparison", "🔍 Weather & Price Lookups"])
-    
-    with tab1:
-        st.markdown("##### 🤖 Automated AI Agronomic Advice")
-        
+    # ── Tabs ──
+    t1, t2, t3, t4 = st.tabs(["🤖 AI Advice", "📊 Model Comparison", "📈 Benchmark Chart", "🔍 Lookups"])
+
+    with t1:
+        st.markdown("##### 🧠 Automated Agronomic Recommendations")
         recs = []
-        if improved_seed_used == 0:
-            recs.append("⚠️ **Switch to Improved Seed**: Local seed detected. Switching to certified improved seed can boost yield by **+25% to +35%** in this region.")
+        if improved_seed == 0:
+            recs.append(("🚨", "red",   "Switch to Improved Seed", "Local seed detected. Certified improved seed can boost yield by **+25–35%** in this region."))
         else:
-            recs.append("✅ **Optimal Seed**: Improved seed selection verified. Excellent choice for maximizing genetic yield potential.")
-            
-        if fertilizer_kg_per_ha < 60:
-            recs.append("⚠️ **Low Fertilizer Rate**: Applying under 60kg/ha limits crop growth. Recommended target for this crop is **80 - 120 kg/ha**.")
+            recs.append(("✅", "green", "Optimal Seed Variety", "Improved seed selection verified. Maximising genetic yield potential."))
+        if fertilizer_kg < 60:
+            recs.append(("⚠️", "amber", "Increase Fertilizer Rate", f"Applying **{fertilizer_kg:.0f} kg/ha** is below the recommended **80–120 kg/ha** threshold."))
         else:
-            recs.append("✅ **Balanced Nutrition**: Fertilizer application meets target thresholds.")
-            
+            recs.append(("✅", "green", "Fertilizer on Target", f"**{fertilizer_kg:.0f} kg/ha** meets the agronomic threshold. Excellent input management."))
         if planting_month > 6:
-            recs.append("🚨 **Late Planting Warning**: Planting after June increases risk of end-of-season drought stress in Ethiopia.")
-            
+            recs.append(("🚨", "red",   "Late Planting Risk", "Planting after June significantly increases end-of-season drought stress in Ethiopia."))
         if pest_disease_flag == 1:
-            recs.append("🚨 **Pest Warning**: Pest/disease observed. Deploy targeted fungicide/pesticide immediately to protect expected yield.")
+            recs.append(("🚨", "red",   "Active Pest/Disease Alert", "Pest or disease observed. Deploy targeted intervention immediately to protect yield."))
+        if season_heat > 10:
+            recs.append(("⚠️", "amber", "Extreme Heat Risk", f"**{int(season_heat)} heat days** in the growing season. Consider heat-tolerant varieties."))
+        if season_rain < 200:
+            recs.append(("⚠️", "amber", "Low Seasonal Rainfall", f"Only **{season_rain:.0f} mm** cumulative rain. Supplemental irrigation may be needed."))
 
-        for r in recs:
-            st.info(r)
+        for icon, color, title, msg in recs:
+            bg  = {"red":"#ffebee","amber":"#fff8e1","green":"#e8f5e9"}.get(color,"#f5f5f5")
+            brd = {"red":"#ef9a9a","amber":"#ffcc80","green":"#a5d6a7"}.get(color,"#ddd")
+            st.markdown(f"""
+            <div style='background:{bg};border:1px solid {brd};border-radius:10px;padding:.8rem 1rem;margin-bottom:.6rem;'>
+              <b style='font-size:.88rem;'>{icon} {title}</b><br>
+              <span style='font-size:.82rem;color:#444;'>{msg}</span>
+            </div>
+            """, unsafe_allow_html=True)
 
-    with tab2:
-        st.markdown("##### 📊 Predicted Yield vs Regional Benchmarks")
-        
-        # Benchmark comparison chart
-        bench_data = pd.DataFrame({
+    with t2:
+        st.markdown("##### 📋 All Models — Cross-Validation Performance")
+        comparison_data = [
+            {"Model": f"{MODEL_REGISTRY[n]['emoji']} {n}", "CV RMSE": MODEL_REGISTRY[n]['cv_rmse'],
+             "CV R²": MODEL_REGISTRY[n]['cv_r2'], "Selected": n == selected_model}
+            for n in MODEL_REGISTRY
+        ]
+        comp_df = pd.DataFrame(comparison_data)
+
+        def highlight_selected(row):
+            if row['Selected']:
+                return ['background-color: #e8f5e9; font-weight: bold;'] * len(row)
+            return [''] * len(row)
+
+        st.dataframe(
+            comp_df.drop(columns=['Selected']).style
+                .format({"CV RMSE": "{:.4f}", "CV R²": "{:.4f}"})
+                .apply(highlight_selected, axis=1)
+                .set_table_styles([{'selector': 'th', 'props': [('font-weight', 'bold'), ('background', '#f1f8e9')]}]),
+            use_container_width=True, hide_index=True
+        )
+        st.caption(f"🟢 Highlighted row = currently active model: **{selected_model}**")
+
+    with t3:
+        st.markdown(f"##### 📊 Predicted Yield vs Regional Benchmarks ({survey_year})")
+        bench = pd.DataFrame({
             "Category": [f"Your Plot ({crop_type})", "Oromia Avg", "Amhara Avg", "SNNPR Avg", "National Target"],
-            "Yield (tons/ha)": [predicted_yield, 2.65, 2.10, 2.40, 3.20]
+            "Yield": [predicted_yield, 2.65, 2.10, 2.40, 3.20]
         })
-        
-        fig, ax = plt.subplots(figsize=(7, 3.2))
-        colors = ['#1b5e20' if i==0 else '#b0bec5' for i in range(len(bench_data))]
-        sns.barplot(data=bench_data, x="Category", y="Yield (tons/ha)", hue="Category", palette=colors, legend=False, ax=ax)
-        ax.set_title(f"Plot Forecast vs Regional Average Yields ({survey_year})", fontsize=10, fontweight='bold', pad=12)
+        fig, ax = plt.subplots(figsize=(8, 3.5))
+        colors_bar = [m["color"] if i == 0 else "#b0bec5" for i in range(len(bench))]
+        sns.barplot(data=bench, x="Category", y="Yield", hue="Category",
+                    palette=colors_bar, legend=False, ax=ax)
+        for p in ax.patches:
+            ax.annotate(f"{p.get_height():.2f}", (p.get_x() + p.get_width() / 2, p.get_height()),
+                        ha='center', va='bottom', xytext=(0, 5), textcoords='offset points',
+                        fontsize=9, fontweight='bold')
+        ax.set_title(f"Plot Forecast vs Regional Averages — {selected_model}", fontsize=10, fontweight='bold', pad=10)
         ax.set_ylabel("Yield (tons / ha)", fontsize=9)
         ax.set_xlabel("")
-        ax.grid(axis='y', linestyle='--', alpha=0.5)
-        for p in ax.patches:
-            ax.annotate(f"{p.get_height():.2f}", (p.get_x() + p.get_width() / 2., p.get_height()),
-                        ha='center', va='center', xytext=(0, 5), textcoords='offset points', fontsize=9, fontweight='bold')
+        ax.grid(axis='y', linestyle='--', alpha=0.4)
+        ax.spines[['top','right']].set_visible(False)
         plt.tight_layout()
         st.pyplot(fig)
+        plt.close()
 
-    with tab3:
-        st.markdown(f"##### 🛰️ Time-Series Intelligence Lookups ({region} - {survey_year})")
-        st.write(f"- **4-Month Growing Window**: Months {months[0]} to {months[-1]}")
-        st.write(f"- **Seasonal Mean Temperature**: `{season_temp:.2f} °C`")
-        st.write(f"- **Cumulative Rainfall**: `{season_rain:.1f} mm`")
-        st.write(f"- **Extreme Heat Days**: `{season_heat} days`")
-        st.write(f"- **Market Price ({crop_type.capitalize()})**: `{price_birr:,.2f} Birr / quintal`")
+    with t4:
+        st.markdown(f"##### 🛰️ Automated Data Lookups — {region} ({survey_year})")
+        col_w, col_p = st.columns(2)
+        with col_w:
+            st.markdown("**🌦️ Seasonal Weather**")
+            st.markdown(f"- Growing window: months **{months[0]}–{months[-1]}**")
+            st.markdown(f"- Mean temperature: **{season_temp:.2f} °C**")
+            st.markdown(f"- Total rainfall: **{season_rain:.1f} mm**")
+            st.markdown(f"- Extreme heat days: **{int(season_heat)}**")
+        with col_p:
+            st.markdown("**📈 Market Price**")
+            st.markdown(f"- Crop: **{crop_type}** | Year: **{survey_year}**")
+            st.markdown(f"- Price: **{price_birr:,.0f} Birr/quintal**")
+            st.markdown(f"- Total quintals: **{total_quintals:.0f} qtl**")
+            st.markdown(f"- Estimated revenue: **{revenue:,.0f} ETB**")
 
-# Footer
+# ─── Footer ──────────────────────────────────────────────────────────────────
 st.markdown("---")
-st.caption("🌾 **Qiyas Ethiopian Smallholder Crop-Yield Challenge | Team 6 Submission** | Built with Streamlit & Scikit-Learn")
+st.caption(
+    "🌾 **Qiyas Ethiopian Smallholder Crop-Yield Challenge | Team 6** · "
+    "Built with Streamlit & Scikit-Learn · "
+    f"Active Model: {selected_model} · Hackathon AAU 2026"
+)
