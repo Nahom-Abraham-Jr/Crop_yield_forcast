@@ -22,6 +22,12 @@
 
 ---
 
+## 🗺️ 1.1 Entity-Relationship (ER) Architecture Diagram (`gemini-svg`)
+
+![Qiyas Crop Intelligence ER Diagram - gemini-svg](figures/gemini-svg.svg)
+
+---
+
 ## 🎯 2. Project Overview & Challenge Objective
 
 Smallholder agriculture accounts for over 80% of crop production in Ethiopia and employs the majority of the rural workforce. However, yield prediction is traditionally post-harvest, leaving government authorities, emergency response bodies, and agricultural extension agents without early-warning systems against severe drought or crop failure.

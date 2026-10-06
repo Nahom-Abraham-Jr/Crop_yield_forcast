@@ -25,6 +25,12 @@
 
 ---
 
+## 🗺️ Entity-Relationship (ER) Architecture Diagram (`gemini-svg`)
+
+![Qiyas Crop Intelligence ER Diagram - gemini-svg](figures/gemini-svg.svg)
+
+---
+
 ## 📌 Executive Summary
 
 Smallholder agriculture accounts for over 80% of crop production in Ethiopia, yet yield estimation remains predominantly post-harvest, leaving farmers vulnerable to drought, pest outbreaks, and price shocks.
