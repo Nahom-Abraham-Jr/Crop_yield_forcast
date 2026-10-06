@@ -300,10 +300,19 @@ with st.sidebar:
     P = PRESETS[preset]
 
     st.markdown("---")
-    st.markdown("### ℹ️ Platform Info")
-    st.caption("**Hackathon**: Qiyas / AAU 2026")
+    st.markdown("### ℹ️ Platform Info & Team")
+    st.caption("**Hackathon**: Qiyas 2026 Ethiopian Crop-Yield Challenge")
     st.caption("**Team**: Group 6")
-    st.caption("**Dataset**: 15,090 Ethiopian farm plots")
+    st.markdown("""
+    <div style='background:#f8f9fa;border:1px solid #e0e0e0;border-radius:8px;padding:.6rem .8rem;font-size:.78rem;margin-top:.4rem;line-height:1.5;'>
+      <b style='color:#1b5e20;'>👥 Team 6 Roster:</b><br>
+      • <b>Dawit Birhanu Mulu</b><br>&nbsp;&nbsp;<code style='font-size:.72rem;'>qiyas-2026-004506</code><br>
+      • <b>Fetene Erkutena Nibret</b><br>&nbsp;&nbsp;<code style='font-size:.72rem;'>qiyas-2026-004836</code><br>
+      • <b>Nahom Abraham Bekele</b><br>&nbsp;&nbsp;<code style='font-size:.72rem;'>qiyas-2026-003344</code><br>
+      • <b>Haro Utura Kerro</b><br>&nbsp;&nbsp;<code style='font-size:.72rem;'>qiyas-2026-007008</code><br>
+      • <b>Kaleab Zerihun Teshome</b><br>&nbsp;&nbsp;<code style='font-size:.72rem;'>qiyas-2026-003596</code>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ─── Hero ────────────────────────────────────────────────────────────────────
 st.markdown(f"""
