@@ -9,9 +9,12 @@
 
 ## 🌐 Live Web Application & Deployment Links
 
-- 🚀 **Vercel Live App**: [https://crop-yield-forecast-team6.vercel.app](https://crop-yield-forecast-team6.vercel.app)
-- 🌾 **Streamlit Live Cloud App**: [https://crop-yield-forecast-team6.streamlit.app](https://crop-yield-forecast-team6.streamlit.app)
+- 🚀 **Live Vercel Application**: [https://crop-yield-forecast-team6.vercel.app](https://crop-yield-forecast-team6.vercel.app)
+- 🌾 **Live Streamlit Cloud Application**: [https://crop-yield-forecast-team6.streamlit.app](https://crop-yield-forecast-team6.streamlit.app)
 - 📦 **GitHub Repository**: [https://github.com/Nahom-Abraham-Jr/Crop_yield_forcast](https://github.com/Nahom-Abraham-Jr/Crop_yield_forcast)
+
+> **Deploy to Vercel in 1-Click**:  
+> [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FNahom-Abraham-Jr%2FCrop_yield_forcast&root-directory=team_6)
 
 ---
 
