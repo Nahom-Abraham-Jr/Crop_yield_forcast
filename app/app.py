@@ -501,18 +501,20 @@ with col_dash:
         st.markdown("##### 📋 All Models — Cross-Validation Performance")
         comparison_data = [
             {"Model": f"{MODEL_REGISTRY[n]['emoji']} {n}", "CV RMSE": MODEL_REGISTRY[n]['cv_rmse'],
-             "CV R²": MODEL_REGISTRY[n]['cv_r2'], "Selected": n == selected_model}
+             "CV R²": MODEL_REGISTRY[n]['cv_r2']}
             for n in MODEL_REGISTRY
         ]
         comp_df = pd.DataFrame(comparison_data)
 
+        selected_formatted = f"{MODEL_REGISTRY[selected_model]['emoji']} {selected_model}"
+
         def highlight_selected(row):
-            if row['Selected']:
+            if row['Model'] == selected_formatted:
                 return ['background-color: #e8f5e9; font-weight: bold;'] * len(row)
             return [''] * len(row)
 
         st.dataframe(
-            comp_df.drop(columns=['Selected']).style
+            comp_df.style
                 .format({"CV RMSE": "{:.4f}", "CV R²": "{:.4f}"})
                 .apply(highlight_selected, axis=1)
                 .set_table_styles([{'selector': 'th', 'props': [('font-weight', 'bold'), ('background', '#f1f8e9')]}]),
