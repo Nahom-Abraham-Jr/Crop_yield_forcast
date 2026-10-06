@@ -1,7 +1,7 @@
 # 🌾 Qiyas Ethiopian Smallholder Crop-Yield Challenge — Team 6
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
-[![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-000000.svg?logo=vercel&logoColor=white)](https://crop-yield-forecast-team6.vercel.app)
+[![Live Web App](https://img.shields.io/badge/Live_Web_App-Deployed-2e7d32.svg?logo=googlechrome&logoColor=white)](https://nahom-abraham-jr.github.io/Crop_yield_forcast/)
 [![Streamlit App](https://img.shields.io/badge/Streamlit-Live_UI%2FUX-FF4B4B.svg?logo=streamlit)](https://crop-yield-forecast-team6.streamlit.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -9,12 +9,10 @@
 
 ## 🌐 Live Web Application & Deployment Links
 
-- 🚀 **Live Vercel Application**: [https://crop-yield-forecast-team6.vercel.app](https://crop-yield-forecast-team6.vercel.app)
-- 🌾 **Live Streamlit Cloud Application**: [https://crop-yield-forecast-team6.streamlit.app](https://crop-yield-forecast-team6.streamlit.app)
+- 🚀 **Official Live Web Application**: [https://nahom-abraham-jr.github.io/Crop_yield_forcast/](https://nahom-abraham-jr.github.io/Crop_yield_forcast/)
+- 🌾 **Live Streamlit Cloud Platform**: [https://crop-yield-forecast-team6.streamlit.app](https://crop-yield-forecast-team6.streamlit.app)
+- ⚡ **Deploy to Vercel (1-Click)**: [https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FNahom-Abraham-Jr%2FCrop_yield_forcast&root-directory=team_6](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FNahom-Abraham-Jr%2FCrop_yield_forcast&root-directory=team_6)
 - 📦 **GitHub Repository**: [https://github.com/Nahom-Abraham-Jr/Crop_yield_forcast](https://github.com/Nahom-Abraham-Jr/Crop_yield_forcast)
-
-> **Deploy to Vercel in 1-Click**:  
-> [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FNahom-Abraham-Jr%2FCrop_yield_forcast&root-directory=team_6)
 
 ---
 
