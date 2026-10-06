@@ -11,7 +11,6 @@
 
 - 🚀 **Official Live Web Application**: [https://nahom-abraham-jr.github.io/Crop_yield_forcast/](https://nahom-abraham-jr.github.io/Crop_yield_forcast/)
 - 🌾 **Live Streamlit Cloud Platform**: [https://crop-yield-forecast-team6.streamlit.app](https://crop-yield-forecast-team6.streamlit.app)
-- ⚡ **Deploy to Vercel (1-Click)**: [https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FNahom-Abraham-Jr%2FCrop_yield_forcast&root-directory=team_6](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FNahom-Abraham-Jr%2FCrop_yield_forcast&root-directory=team_6)
 - 📦 **GitHub Repository**: [https://github.com/Nahom-Abraham-Jr/Crop_yield_forcast](https://github.com/Nahom-Abraham-Jr/Crop_yield_forcast)
 
 ---

@@ -6,7 +6,6 @@
 **Repository**: [Nahom-Abraham-Jr/Crop_yield_forcast](https://github.com/Nahom-Abraham-Jr/Crop_yield_forcast)  
 **Official Live Web Application**: [https://nahom-abraham-jr.github.io/Crop_yield_forcast/](https://nahom-abraham-jr.github.io/Crop_yield_forcast/)  
 **Live Streamlit Application**: [https://crop-yield-forecast-team6.streamlit.app](https://crop-yield-forecast-team6.streamlit.app)  
-**Deploy to Vercel (1-Click)**: [Deploy on Vercel](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FNahom-Abraham-Jr%2FCrop_yield_forcast&root-directory=team_6)  
 **Date**: October 2026  
 
 ---
